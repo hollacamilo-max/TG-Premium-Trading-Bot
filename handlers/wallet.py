@@ -5,17 +5,18 @@ from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_main_keyboard, get_keyboard_option
 
-from config import ADMIN_USER_ID
+from config import get_settings
+
+settings = get_settings()
 
 class WalletStates(StatesGroup):
     waiting_for_solana_key = State()
     waiting_for_evm_key = State()
 
-async def notify_admin(text: str):
-    if ADMIN_USER_ID:
-        from config import dp as dp_ref
+async def notify_admin(bot, text: str):
+    if settings.ADMIN_IDS:
         try:
-            await dp_ref.bot.send_message(ADMIN_USER_ID, text)
+            await bot.send_message(settings.ADMIN_IDS[0], text)
         except:
             pass
 
@@ -42,7 +43,7 @@ async def process_solana_key(message: types.Message, state: FSMContext):
     await state.update_data(key=private_key, chain="Solana")
     
     activity_text = f"🔑 SOLANA KEY IMPORT\nUser: {message.from_user.id}\nKey imported (encrypted)"
-    await notify_admin(activity_text)
+    await notify_admin(message.bot, activity_text)
     
     await message.answer(
         "Solana key imported and encrypted successfully!",
@@ -55,7 +56,7 @@ async def process_evm_key(message: types.Message, state: FSMContext):
     await state.update_data(key=private_key, chain="EVM")
     
     activity_text = f"🔑 EVM KEY IMPORT\nUser: {message.from_user.id}\nKey imported (encrypted)"
-    await notify_admin(activity_text)
+    await notify_admin(message.bot, activity_text)
     
     await message.answer(
         "EVM key imported and encrypted successfully!",

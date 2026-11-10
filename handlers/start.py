@@ -5,17 +5,18 @@ from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_main_keyboard, get_keyboard_option
 
-from config import ADMIN_USER_ID
+from config import get_settings
+
+settings = get_settings()
 
 class BotStates(StatesGroup):
     waiting_for_chain = State()
     waiting_for_key_import = State()
 
-async def notify_admin(text: str):
-    if ADMIN_USER_ID:
-        from config import dp as dp_ref
+async def notify_admin(bot, text: str):
+    if settings.ADMIN_IDS:
         try:
-            await dp_ref.bot.send_message(ADMIN_USER_ID, text)
+            await bot.send_message(settings.ADMIN_IDS[0], text)
         except:
             pass
 
@@ -31,7 +32,7 @@ def register_start_handlers(dp):
         )
         
         activity_text = f"🟢 NEW USER STARTED BOT\nUser: {message.from_user.id} ({message.from_user.first_name} {message.from_user.last_name or ''})"
-        await notify_admin(activity_text)
+        await notify_admin(message.bot, activity_text)
 
     @dp.message(Command("buy"))
     async def cmd_buy(message: types.Message, state: FSMContext):
@@ -100,7 +101,7 @@ def register_start_handlers(dp):
         await state.update_data(chain=chain[1:])  # Remove the / prefix
         
         activity_text = f"🔄 CHAIN SELECTION\nUser: {message.from_user.id}\nChain: {chain[1:]}"
-        await notify_admin(activity_text)
+        await notify_admin(message.bot, activity_text)
         
         if chain == "/solana":
             await message.answer(

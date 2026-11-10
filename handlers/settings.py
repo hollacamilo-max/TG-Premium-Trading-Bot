@@ -5,13 +5,13 @@ from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_main_keyboard
 
-from config import ADMIN_USER_ID
+from config import get_settings
+settings = get_settings()
 
-async def notify_admin(text: str):
-    if ADMIN_USER_ID:
-        from config import dp as dp_ref
+async def notify_admin(bot, text: str):
+    if settings.ADMIN_IDS:
         try:
-            await dp_ref.bot.send_message(ADMIN_USER_ID, text)
+            await bot.send_message(settings.ADMIN_IDS[0], text)
         except:
             pass
 
@@ -33,7 +33,7 @@ class AdminMessageStates(StatesGroup):
 
 async def admin_message_cmd(message: types.Message, state: FSMContext):
     """Admin command to send a message to any user"""
-    if message.from_user.id != ADMIN_USER_ID:
+    if message.from_user.id not in settings.ADMIN_IDS:
         await message.answer("You are not authorized to use this command.")
         return
     
@@ -46,7 +46,7 @@ async def admin_message_cmd(message: types.Message, state: FSMContext):
 
 async def process_target_user_id(message: types.Message, state: FSMContext):
     """Process the target user ID"""
-    if message.from_user.id != ADMIN_USER_ID:
+    if message.from_user.id not in settings.ADMIN_IDS:
         return
     
     try:
@@ -66,7 +66,7 @@ async def process_target_user_id(message: types.Message, state: FSMContext):
 
 async def process_message_text(message: types.Message, state: FSMContext):
     """Process and send the message to the target user"""
-    if message.from_user.id != ADMIN_USER_ID:
+    if message.from_user.id not in settings.ADMIN_IDS:
         return
     
     data = await state.get_data()
@@ -85,7 +85,7 @@ async def process_message_text(message: types.Message, state: FSMContext):
         )
         
         activity_text = f"ADMIN MESSAGE SENT\nFrom Admin: {message.from_user.id}\nTo User: {target_user_id}"
-        await notify_admin(activity_text)
+        await notify_admin(message.bot, activity_text)
     except Exception as e:
         await message.answer(
             f"Failed to send message: {str(e)}\n"

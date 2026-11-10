@@ -4,17 +4,18 @@ from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_main_keyboard
 
-from config import ADMIN_USER_ID
+from config import get_settings
+
+settings = get_settings()
 
 class BuyStates(StatesGroup):
     waiting_for_amount = State()
     waiting_for_confirmation = State()
 
-async def notify_admin(text: str):
-    if ADMIN_USER_ID:
-        from config import dp as dp_ref
+async def notify_admin(bot, text: str):
+    if settings.ADMIN_IDS:
         try:
-            await dp_ref.bot.send_message(ADMIN_USER_ID, text)
+            await bot.send_message(settings.ADMIN_IDS[0], text)
         except:
             pass
 
@@ -25,7 +26,7 @@ def register_buy_handlers(dp):
         chain = data.get("chain", "unknown")
         
         activity_text = f"💰 BUY REQUEST\nUser: {message.from_user.id}\nChain: {chain}"
-        await notify_admin(activity_text)
+        await notify_admin(message.bot, activity_text)
         
         await message.answer(
             f"Buy order on {chain} chain!\n\n"
@@ -42,7 +43,7 @@ def register_buy_handlers(dp):
             chain = data.get("chain", "unknown")
             
             activity_text = f"💰 BUY ORDER\nUser: {message.from_user.id}\nChain: {chain}\nAmount: {amount}"
-            await notify_admin(activity_text)
+            await notify_admin(message.bot, activity_text)
             
             await message.answer(
                 f"Processing buy order:\n"
