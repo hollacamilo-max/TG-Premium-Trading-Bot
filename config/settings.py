@@ -73,6 +73,8 @@ class Settings(BaseSettings):
     def parse_admin_ids(cls, v):
         if isinstance(v, str):
             return [int(x.strip()) for x in v.split(",") if x.strip()]
+        elif isinstance(v, int):
+            return [v]
         return v
 
     @field_validator("ENCRYPTION_KEY")
