@@ -1,11 +1,11 @@
 aiogram==3.13.1
 web3==7.8.0
 eth-account==0.13.7
-eth-keys==0.4.0
-eth-utils==4.3.0
-solana==0.34.0
-solders==0.23.0
-anchorpy==0.19.0
+eth-keys>=0.7.0
+eth-utils>=5.3.1
+solana>=0.34.0
+solders>=0.23.0
+anchorpy>=0.20.0
 pytoniq-core==0.2.0
 redis==5.2.0
 asyncpg==0.29.0
@@ -14,7 +14,7 @@ alembic==1.13.2
 python-dotenv==1.0.1
 pydantic==2.9.2
 pydantic-settings==2.5.2
-httpx==0.28.1
+httpx>=0.28.1
 aiohttp==3.10.5
 bip-utils==2.9.3
 mnemonic==0.20
