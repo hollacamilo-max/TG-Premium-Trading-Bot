@@ -9,6 +9,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
+    libsecp256k1-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
