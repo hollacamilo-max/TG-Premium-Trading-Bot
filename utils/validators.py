@@ -1,15 +1,20 @@
 import re
 from typing import Tuple
 from mnemonic import Mnemonic
-from bip_utils import Bip39SeedGenerator, Bip39MnemonicValidator
-from eth_account import Account
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 
 
 # Initialize mnemonic validators
 _mnemonic_english = Mnemonic("english")
-_bip39_validator = Bip39MnemonicValidator()
+
+# Try to import eth_account for EVM validation
+try:
+    from eth_account import Account
+    ETH_ACCOUNT_AVAILABLE = True
+except ImportError:
+    Account = None
+    ETH_ACCOUNT_AVAILABLE = False
 
 
 def validate_seed_phrase(phrase: str) -> Tuple[bool, str]:
@@ -29,10 +34,8 @@ def validate_seed_phrase(phrase: str) -> Tuple[bool, str]:
         return False, "Invalid seed phrase: checksum failed"
     
     # Additional BIP39 validation
-    try:
-        _bip39_validator.Validate(phrase.strip())
-    except Exception as e:
-        return False, f"Invalid seed phrase: {str(e)}"
+    # Note: Additional BIP39 validation skipped (requires bip_utils with C++ compiler)
+    # The mnemonic library check above already validates the checksum
     
     return True, ""
 
@@ -59,6 +62,9 @@ def validate_private_key_evm(private_key: str) -> Tuple[bool, str, str]:
         return True, account.address, ""
     except Exception as e:
         return False, "", f"Invalid private key: {str(e)}"
+
+    # eth_account not available
+    return False, "", "EVM validation not available (eth_account not installed)"
 
 
 def validate_private_key_solana(private_key: str) -> Tuple[bool, str, str]:

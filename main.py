@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import logging
 import sys
 
@@ -45,6 +45,7 @@ async def main():
     from handlers.sell import register_sell_handlers
     from handlers.wallet import register_wallet_handlers
     from handlers.settings import register_settings_handlers
+    from handlers.menu_callbacks import register_menu_callbacks
     
     # Register all feature handlers
     register_start_handlers(dp)
@@ -52,6 +53,7 @@ async def main():
     register_sell_handlers(dp)
     register_wallet_handlers(dp)
     register_settings_handlers(dp)
+    register_menu_callbacks(dp)
     
     # Start polling
     logger.info('Bot started successfully!')
