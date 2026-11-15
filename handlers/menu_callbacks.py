@@ -1,4 +1,4 @@
-from aiogram import types, F
+﻿from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 import re
 
@@ -26,9 +26,7 @@ def register_menu_callbacks(dp):
     async def callback_wallet_withdraw(callback: types.CallbackQuery, state: FSMContext):
         await state.update_data(action="withdraw")
         await callback.message.edit_text(
-            "📤 <b>Withdraw SOL</b>
-
-"
+            "📤 <b>Withdraw SOL</b>\n\n"
             "Select amount to withdraw:",
             parse_mode="HTML",
             reply_markup=get_amount_keyboard("withdraw")
@@ -39,9 +37,7 @@ def register_menu_callbacks(dp):
     async def callback_wallet_refresh(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("Balance refreshed!")
         await callback.message.edit_text(
-            "👛 <b>Wallet Menu</b>
-
-Manage your wallets:",
+            "👛 <b>Wallet Menu</b>\n\nManage your wallets:",
             parse_mode="HTML",
             reply_markup=get_wallet_keyboard(has_wallet=True, balance="0.00 SOL")
         )
@@ -49,12 +45,8 @@ Manage your wallets:",
     @dp.callback_query(F.data == "wallet_history")
     async def callback_wallet_history(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.edit_text(
-            "📋 <b>Transaction History</b>
-
-"
-            "No transactions yet.
-
-"
+            "📜 <b>Transaction History</b>\n\n"
+            "No transactions yet.\n\n"
             "Your transaction history will appear here.",
             parse_mode="HTML",
             reply_markup=get_back_main_keyboard()
