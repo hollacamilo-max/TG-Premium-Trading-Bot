@@ -10,6 +10,8 @@
     get_copy_trade_keyboard,
     get_sniper_keyboard,
     get_trade_history_keyboard,
+    get_connect_wallet_keyboard,
+    get_wallet_import_method_keyboard,
 )
 from .admin import get_admin_keyboard, get_admin_user_keyboard, get_broadcast_keyboard, get_admin_activity_keyboard
 from .trading import get_trading_keyboard, get_slippage_keyboard, get_amount_keyboard
@@ -26,6 +28,8 @@ __all__ = [
     "get_copy_trade_keyboard",
     "get_sniper_keyboard",
     "get_trade_history_keyboard",
+    "get_connect_wallet_keyboard",
+    "get_wallet_import_method_keyboard",
     "get_admin_keyboard",
     "get_admin_user_keyboard",
     "get_broadcast_keyboard",

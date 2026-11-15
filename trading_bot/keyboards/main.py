@@ -13,7 +13,7 @@ def get_main_keyboard(has_wallets: bool = False, is_admin: bool = False, is_prem
             InlineKeyboardButton(text="👛 Wallets", callback_data="wallets_menu"),
         )
     else:
-        builder.row(InlineKeyboardButton(text="👛 Import Wallet", callback_data="import_wallet_start"))
+        builder.row(InlineKeyboardButton(text="👛 Connect Wallet", callback_data="connect_wallet"))
     
     # Second row - Portfolio & Positions
     builder.row(
@@ -50,6 +50,40 @@ def get_main_keyboard(has_wallets: bool = False, is_admin: bool = False, is_prem
     return builder.as_markup()
 
 
+def get_connect_wallet_keyboard() -> InlineKeyboardMarkup:
+    """Connect wallet keyboard - select Solana or EVM."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="+ Import Solana Key", callback_data="connect_solana"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="+ Import EVM Key", callback_data="connect_evm"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Back", callback_data="main_menu"),
+    )
+    
+    return builder.as_markup()
+
+
+def get_wallet_import_method_keyboard(chain_type: str) -> InlineKeyboardMarkup:
+    """Wallet import method keyboard for Solana or EVM."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="📝 Seed Phrase (12/24 words)", callback_data=f"import_method_seed_{chain_type}"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔐 Private Key", callback_data=f"import_method_pk_{chain_type}"),
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Back", callback_data="connect_wallet"),
+    )
+    
+    return builder.as_markup()
+
+
 def get_wallet_keyboard(wallets: list, chain_filter: str = None, selected_wallet_id: int = None) -> InlineKeyboardMarkup:
     """Wallet management keyboard."""
     builder = InlineKeyboardBuilder()
@@ -65,7 +99,7 @@ def get_wallet_keyboard(wallets: list, chain_filter: str = None, selected_wallet
             callback_data=f"wallet_{wallet.id}"
         ))
     
-    builder.row(InlineKeyboardButton(text="➕ Import New Wallet", callback_data="import_wallet_start"))
+    builder.row(InlineKeyboardButton(text="➕ Import New Wallet", callback_data="connect_wallet"))
     builder.row(InlineKeyboardButton(text="🔙 Back", callback_data="main_menu"))
     
     return builder.as_markup()

