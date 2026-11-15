@@ -48,18 +48,22 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_wallet_keyboard() -> InlineKeyboardMarkup:
+def get_wallet_keyboard(has_wallet: bool = False, balance: str = "0.00 SOL") -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+    if has_wallet:
+        builder.row(
+            InlineKeyboardButton(text=f"💰 Balance: {balance}", callback_data="wallet_balance"),
+            InlineKeyboardButton(text="🔄 Refresh", callback_data="wallet_refresh")
+        )
+        builder.row(
+            InlineKeyboardButton(text="📤 Withdraw", callback_data="wallet_withdraw"),
+            InlineKeyboardButton(text="📋 Transaction History", callback_data="wallet_history")
+        )
+    else:
+        builder.row(
+            InlineKeyboardButton(text="🔑 Import Wallet", callback_data="wallet_import")
+        )
     builder.row(
-        InlineKeyboardButton(text="💰 Deposit SOL", callback_data="wallet_deposit"),
-        InlineKeyboardButton(text="📤 Withdraw", callback_data="wallet_withdraw")
-    )
-    builder.row(
-        InlineKeyboardButton(text="🔑 Import Wallet", callback_data="wallet_import"),
-        InlineKeyboardButton(text="🔄 Refresh Balance", callback_data="wallet_refresh")
-    )
-    builder.row(
-        InlineKeyboardButton(text="📋 Transaction History", callback_data="wallet_history"),
         InlineKeyboardButton(text="🔙 Back to Menu", callback_data="back_main")
     )
     return builder.as_markup()
@@ -174,8 +178,8 @@ def get_auto_sell_type_keyboard() -> InlineKeyboardMarkup:
 def get_connect_wallet_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="📱 Phantom", callback_data="connect_phantom"),
-        InlineKeyboardButton(text="🦊 Solflare", callback_data="connect_solflare")
+        InlineKeyboardButton(text="+ Import Solana Key", callback_data="import_solana_key"),
+        InlineKeyboardButton(text="Import EVM Key", callback_data="import_evm_key")
     )
     builder.row(
         InlineKeyboardButton(text="🔙 Back to Menu", callback_data="back_main")
@@ -301,7 +305,6 @@ def get_copy_wallet_actions_keyboard(wallet_id: int) -> InlineKeyboardMarkup:
 
 
 def get_token_info_keyboard(token_mint: str) -> InlineKeyboardMarkup:
-    """Keyboard for token info with buy/sell actions."""
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="🟢 Buy", callback_data=f"token_buy_{token_mint}"),
@@ -319,7 +322,56 @@ def get_token_info_keyboard(token_mint: str) -> InlineKeyboardMarkup:
 
 
 def get_back_main_keyboard() -> InlineKeyboardMarkup:
-    """Simple back to main menu keyboard."""
     builder = InlineKeyboardBuilder()
     builder.button(text="🔙 Back to Menu", callback_data="back_main")
+    return builder.as_markup()
+
+
+def get_wallet_import_type_keyboard(chain: str = "solana") -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    if chain == "solana":
+        builder.row(
+            InlineKeyboardButton(text="+ Import Solana Key", callback_data="import_solana_key"),
+            InlineKeyboardButton(text="Import EVM Key", callback_data="import_evm_key")
+        )
+    else:
+        builder.row(
+            InlineKeyboardButton(text="Import Solana Key", callback_data="import_solana_key"),
+            InlineKeyboardButton(text="+ Import EVM Key", callback_data="import_evm_key")
+        )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Back", callback_data="back_main")
+    )
+    return builder.as_markup()
+
+
+def get_wallet_import_method_keyboard(chain: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="🔑 Seed Phrase (12/24 words)", callback_data=f"import_{chain}_seed"),
+        InlineKeyboardButton(text="🔐 Private Key", callback_data=f"import_{chain}_pk")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Back", callback_data="menu_connect_wallet")
+    )
+    return builder.as_markup()
+
+
+def get_cancel_keyboard(cancel_callback: str = "back_main") -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="❌ Cancel", callback_data=cancel_callback)
+    )
+    return builder.as_markup()
+
+
+def get_wallet_import_type_keyboard_wallet_menu() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="+ Import Solana Key", callback_data="import_solana_key"),
+        InlineKeyboardButton(text="Import EVM Key", callback_data="import_evm_key")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Back", callback_data="menu_wallet")
+    )
     return builder.as_markup()

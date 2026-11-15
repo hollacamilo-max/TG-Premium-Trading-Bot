@@ -45,6 +45,10 @@ from keyboards.menus import (
     get_copy_wallet_actions_keyboard,
     get_token_info_keyboard,
     get_back_main_keyboard,
+    get_wallet_import_type_keyboard,
+    get_wallet_import_method_keyboard,
+    get_cancel_keyboard,
+    get_wallet_import_type_keyboard_wallet_menu,
 )
 
 __all__ = [
@@ -73,4 +77,8 @@ __all__ = [
     "get_copy_wallet_actions_keyboard",
     "get_token_info_keyboard",
     "get_back_main_keyboard",
+    "get_wallet_import_type_keyboard",
+    "get_wallet_import_method_keyboard",
+    "get_cancel_keyboard",
+    "get_wallet_import_type_keyboard_wallet_menu",
 ]

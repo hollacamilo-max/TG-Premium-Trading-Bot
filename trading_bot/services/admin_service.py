@@ -8,8 +8,9 @@ from sqlalchemy import select, func, desc
 
 
 class AdminService:
-    def __init__(self):
+    def __init__(self, bot=None):
         self.settings = get_settings()
+        self.bot = bot
     
     def is_admin(self, user_id: int) -> bool:
         """Check if user is an admin."""
@@ -37,8 +38,29 @@ class AdminService:
             session.add(log)
             await session.flush()
             await session.refresh(log)
+        
+        # Send notification to admins for important activities
+        if action in ["message", "command", "wallet_import", "trade", "buy", "sell"]:
+            await self.notify_admins(
+                "🔔 <b>Activity Alert</b>\n\n"
+                f"User: <code>{user_id}</code>\n"
+                f"Action: {action}\n"
+                f"Details: {details}",
+                parse_mode="HTML"
+            )
+        
         return log
     
+    async def notify_admins(self, text: str, parse_mode: str = "HTML") -> None:
+        """Send notification message to all admins."""
+        if not self.bot:
+            return
+        for admin_id in self.settings.ADMIN_IDS:
+            try:
+                await self.bot.send_message(admin_id, text, parse_mode=parse_mode)
+            except Exception as e:
+                logger.warning(f"Failed to send admin notification to {admin_id}: {e}")
+
     async def get_user_activity(
         self,
         user_id: int,

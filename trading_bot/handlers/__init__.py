@@ -1,4 +1,4 @@
-﻿@from .main import router as main_router
+﻿from .main import router as main_router
 from .wallet import router as wallet_router
 from .trading import router as trading_router
 from .admin import router as admin_router

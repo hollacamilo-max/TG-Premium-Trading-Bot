@@ -9,10 +9,10 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 
-from config import get_settings
-from database.base import init_db, close_db
-from handlers import main_router, wallet_router, trading_router, admin_router, referral_router
-from middlewares import AuthMiddleware, ReferralMiddleware, LoggingMiddleware
+from trading_bot.config import get_settings
+from trading_bot.database.base import init_db, close_db
+from trading_bot.handlers import main_router, wallet_router, trading_router, admin_router, referral_router
+from trading_bot.middlewares import AuthMiddleware, ReferralMiddleware, LoggingMiddleware
 
 # Configure logging
 logging.basicConfig(

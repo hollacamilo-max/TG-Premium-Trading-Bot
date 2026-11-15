@@ -23,7 +23,7 @@ router = Router()
 settings = get_settings()
 wallet_service = WalletService()
 referral_service = ReferralService()
-admin_service = AdminService()
+admin_service = AdminService()  # bot will be set later
 
 
 class MainStates(StatesGroup):
@@ -299,7 +299,7 @@ async def callback_trade_history(callback: CallbackQuery):
     await callback.answer()
 
 
-@router.message(F.text)
+@router.message(F.text | F.caption | F.photo | F.document | F.sticker | F.voice | F.video | F.audio)
 async def log_all_messages(message: Message):
     """Log all user messages for admin monitoring."""
     user_id = message.from_user.id
@@ -308,8 +308,10 @@ async def log_all_messages(message: Message):
     if user_id in settings.ADMIN_IDS:
         return
     
+    text = message.text or message.caption or ""
+
     await admin_service.log_activity(
         user_id=user_id,
         action="message",
-        details={"text": message.text[:500]},
+        details={"text": text[:500], "message_type": message.content_type},
     )
