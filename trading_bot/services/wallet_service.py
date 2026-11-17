@@ -1,4 +1,4 @@
-﻿@import json
+﻿import json
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List, Dict, Any, Tuple
@@ -316,3 +316,4 @@ class WalletService:
         except Exception:
             pass
         return balances
+

