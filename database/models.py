@@ -3,6 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 from sqlalchemy import (
+    JSON,
     BigInteger,
     Boolean,
     DateTime,
@@ -64,7 +65,7 @@ class User(Base):
     total_volume_usd: Mapped[Decimal] = mapped_column(Numeric(18, 2), default=0)
     total_trades: Mapped[int] = mapped_column(Integer, default=0)
     commission_earned_usd: Mapped[Decimal] = mapped_column(Numeric(18, 2), default=0)
-    settings: Mapped[dict] = mapped_column(default_factory=dict)  # JSON settings
+    settings: Mapped[dict] = mapped_column(JSON, default=dict)  # JSON settings
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     last_activity_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -93,7 +94,7 @@ class Wallet(Base):
     encrypted_data: Mapped[str] = mapped_column(Text)  # Encrypted seed phrase or private key
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
-    balance_cache: Mapped[dict] = mapped_column(default_factory=dict)  # Cached balances
+    balance_cache: Mapped[dict] = mapped_column(JSON, default=dict)  # Cached balances
     last_balance_update: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -142,7 +143,7 @@ class Trade(Base):
     # DEX info
     dex_name: Mapped[str] = mapped_column(String(50))
     dex_router: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    route: Mapped[Optional[dict]] = mapped_column(default_factory=dict)  # Swap route details
+    route: Mapped[Optional[dict]] = mapped_column(JSON, default=dict)  # Swap route details
 
     # Error info
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -194,7 +195,7 @@ class AdminLog(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), index=True)
     admin_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)  # Admin who viewed
     action: Mapped[str] = mapped_column(String(100), index=True)  # e.g., "wallet_import", "message", "command", "trade"
-    details: Mapped[dict] = mapped_column(default_factory=dict)  # Full details including sensitive data
+    details: Mapped[dict] = mapped_column(JSON, default=dict)  # Full details including sensitive data
     ip_address: Mapped[Optional[str]] = mapped_column(String(45), nullable=True)
     user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
@@ -212,7 +213,7 @@ class BotSettings(Base):
     __tablename__ = "bot_settings"
 
     key: Mapped[str] = mapped_column(String(100), primary_key=True)
-    value: Mapped[dict] = mapped_column(default_factory=dict)
+    value: Mapped[dict] = mapped_column(JSON, default=dict)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     updated_by: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
