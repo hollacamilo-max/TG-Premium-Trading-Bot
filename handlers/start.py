@@ -449,6 +449,7 @@ async def process_seed_phrase(message, state, chain):
                'bsc': Bip44Coins.BINANCE_SMART_CHAIN,
                'polygon': Bip44Coins.POLYGON,
                'avalanche': Bip44Coins.AVALANCHE,
+               'evm': Bip44Coins.ETHEREUM,  # Generic EVM defaults to Ethereum derivation
            }
            
            coin_type = chain_map.get(chain, Bip44Coins.ETHEREUM)
@@ -460,7 +461,7 @@ async def process_seed_phrase(message, state, chain):
            
    except Exception as e:
        await message.answer(
-           f'Error Deriving Address\n\nFailed to derive address from seed phrase: {str(e)}\n\nPlease verify your seed phrase is correct.',
+           f"Error Deriving Address\n\nFailed to derive address from seed phrase: {type(e).__name__}: {str(e)}\n\nPlease verify your seed phrase is correct.",
            parse_mode='HTML',
            reply_markup=get_cancel_keyboard('menu_connect_wallet')
        )
@@ -469,7 +470,7 @@ async def process_seed_phrase(message, state, chain):
    encrypted_seed = encrypt_data(seed_phrase)
    
    try:
-       async for db in get_db():
+       async with get_db() as db:
            wallet = Wallet(
                user_id=message.from_user.id,
                chain=chain_type,
@@ -482,7 +483,6 @@ async def process_seed_phrase(message, state, chain):
            db.add(wallet)
            await db.commit()
            await db.refresh(wallet)
-           break
    except Exception as e:
        await message.answer(
            f'Database Error\n\nFailed to save wallet: {str(e)}',
@@ -537,7 +537,7 @@ async def process_private_key(message, state, chain):
    encrypted_pk = encrypt_data(private_key)
    
    try:
-       async for db in get_db():
+       async with get_db() as db:
            wallet = Wallet(
                user_id=message.from_user.id,
                chain=chain_type,
@@ -550,7 +550,6 @@ async def process_private_key(message, state, chain):
            db.add(wallet)
            await db.commit()
            await db.refresh(wallet)
-           break
    except Exception as e:
        await message.answer(
            f'Database Error\n\nFailed to save wallet: {str(e)}',
@@ -576,4 +575,7 @@ async def process_private_key(message, state, chain):
        parse_mode='HTML',
        reply_markup=get_main_menu_keyboard()
    )
+
+
+
 

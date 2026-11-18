@@ -53,6 +53,7 @@ class WalletService:
             "matic": Bip44Coins.POLYGON,
             "avalanche": Bip44Coins.AVALANCHE,
             "avax": Bip44Coins.AVALANCHE,
+            "evm": Bip44Coins.ETHEREUM,  # Generic EVM defaults to Ethereum derivation
         }
         coin = coin_map.get(chain.lower(), Bip44Coins.ETHEREUM)
         bip44_ctx = Bip44.FromSeed(seed, coin)
