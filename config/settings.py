@@ -1,4 +1,4 @@
-import os
+﻿import os
 from functools import lru_cache
 from typing import List, Optional
 from pydantic import Field, field_validator
@@ -88,6 +88,14 @@ class Settings(BaseSettings):
         except Exception:
             raise ValueError("Invalid base64 encryption key")
         return v
+
+    @property
+    def database_url_async(self) -> str:
+        """Get DATABASE_URL with asyncpg driver for SQLAlchemy async engine."""
+        url = self.DATABASE_URL
+        if url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+            return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
 
     def get_evm_rpc(self, chain: str) -> str:
         """Get RPC URL for EVM chain."""

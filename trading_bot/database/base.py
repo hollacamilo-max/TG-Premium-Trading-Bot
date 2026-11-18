@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
 )
 from sqlalchemy.orm import DeclarativeBase
-from config import get_settings
+from trading_bot.config import get_settings
 
 
 class Base(DeclarativeBase):
@@ -22,7 +22,7 @@ def init_db() -> None:
     global engine, async_session_maker
     settings = get_settings()
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        settings.database_url_async,
         echo=settings.LOG_LEVEL == "DEBUG",
         pool_pre_ping=True,
         pool_size=10,

@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager
+﻿from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -22,7 +22,7 @@ def init_db() -> None:
     global engine, async_session_maker
     settings = get_settings()
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        settings.database_url_async,
         echo=settings.LOG_LEVEL == "DEBUG",
         pool_pre_ping=True,
         pool_size=10,
