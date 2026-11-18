@@ -68,7 +68,7 @@ def register_start_handlers(dp):
        await message.answer(
            "Welcome to Fomo the Trading Bot\n\n"
            "Trade on Solana and EVM chains, and mirror other wallets with copy trading.\n\n"
-           "âš ï¸ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
+           "âš  Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
            reply_markup=get_main_menu_keyboard()
        )
        
@@ -110,7 +110,7 @@ def register_start_handlers(dp):
        await state.clear()
        await state.set_state(MenuStates.settings_menu)
        await message.answer(
-           "âš™ï¸ <b>Settings Menu</b>\n\nConfigure your preferences:",
+           "âš™ <b>Settings Menu</b>\n\nConfigure your preferences:",
            parse_mode="HTML",
            reply_markup=get_settings_keyboard()
        )
@@ -166,7 +166,7 @@ def register_start_handlers(dp):
        await state.clear()
        await state.set_state(MenuStates.main_menu)
        await callback.message.edit_text(
-           "ðŸ  <b>Main Menu</b>\n\nWelcome back! Select an option:",
+           "ðŸ <b>Main Menu</b>\n\nWelcome back! Select an option:",
            parse_mode="HTML",
            reply_markup=get_main_menu_keyboard()
        )
@@ -254,7 +254,7 @@ def register_start_handlers(dp):
        await state.clear()
        await state.set_state(MenuStates.settings_menu)
        await callback.message.edit_text(
-           "âš™ï¸ <b>Settings Menu</b>\n\nConfigure your preferences:",
+           "âš™ <b>Settings Menu</b>\n\nConfigure your preferences:",
            parse_mode="HTML",
            reply_markup=get_settings_keyboard()
        )
@@ -377,7 +377,7 @@ def register_start_handlers(dp):
        await callback.message.edit_text(
            "Welcome to Fomo the Trading Bot\n\n"
            "Trade on Solana and EVM chains, and mirror other wallets with copy trading.\n\n"
-           "âš ï¸ Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
+           "âš  Security note: your private key is encrypted at rest, but importing a key always carries risk. Only import keys for wallets you're comfortable dedicating to this bot.",
            reply_markup=get_main_menu_keyboard()
        )
        await callback.answer()
@@ -403,7 +403,7 @@ def register_start_handlers(dp):
    async def handle_cancel(message: types.Message, state: FSMContext):
        await state.clear()
        await message.answer(
-           "âŒ Import cancelled.",
+           "❌ Import cancelled.",
            reply_markup=get_main_menu_keyboard()
        )
 

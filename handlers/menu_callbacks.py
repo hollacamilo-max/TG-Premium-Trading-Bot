@@ -183,7 +183,7 @@ def register_menu_callbacks(dp):
                 parse_mode="HTML"
             )
             
-            token_info = await token_service.get_token_info(token_address, chain)
+            token_info = await token_service.get_token_info_auto(token_address)
             
             if token_info:
                 price = token_info.get('price_usd', 'N/A')
@@ -289,7 +289,7 @@ def register_menu_callbacks(dp):
             parse_mode="HTML"
         )
         
-        token_info = await token_service.get_token_info(text, detected_chain)
+        token_info = await token_service.get_token_info_auto(text)
         
         if token_info:
             price = token_info.get('price_usd', 'N/A')
@@ -415,7 +415,7 @@ def register_menu_callbacks(dp):
             parse_mode="HTML"
         )
         
-        token_info = await token_service.get_token_info(text, detected_chain)
+        token_info = await token_service.get_token_info_auto(text)
         
         if token_info:
             price = token_info.get('price_usd', 'N/A')
