@@ -448,7 +448,7 @@ async def process_seed_phrase(message, state, chain):
                'arbitrum': Bip44Coins.ETHEREUM,
                'bsc': Bip44Coins.BINANCE_SMART_CHAIN,
                'polygon': Bip44Coins.POLYGON,
-               'avalanche': Bip44Coins.AVALANCHE,
+              'avalanche': getattr(Bip44Coins, 'AVALANCHE', Bip44Coins.ETHEREUM),
                'evm': Bip44Coins.ETHEREUM,  # Generic EVM defaults to Ethereum derivation
            }
            
