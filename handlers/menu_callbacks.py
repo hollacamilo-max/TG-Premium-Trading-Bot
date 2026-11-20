@@ -3,6 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import re
 
+# Define state classes at module level for proper aiogram state filtering
+class BuySellStates(StatesGroup):
+    waiting_for_token_address = State()
+    waiting_for_token_search = State()
+    waiting_for_sell_token_address = State()
+
+
 from keyboards import (
     get_wallet_keyboard, get_buy_keyboard, get_sell_keyboard,
     get_copy_trade_keyboard, get_limit_orders_keyboard,
@@ -240,14 +247,6 @@ def register_menu_callbacks(dp):
             reply_markup=get_back_main_keyboard()
         )
         await callback.answer()
-
-
-    # ==================== STATES FOR BUY/SELL ====================
-
-    class BuySellStates(StatesGroup):
-        waiting_for_token_address = State()
-        waiting_for_token_search = State()
-        waiting_for_sell_token_address = State()
 
 
     # ==================== HANDLE TEXT INPUT FOR BUY/SELL ====================
