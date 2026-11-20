@@ -255,17 +255,22 @@ def register_menu_callbacks(dp):
     @dp.message(BuySellStates.waiting_for_token_address)
     async def handle_buy_token_address(message: types.Message, state: FSMContext):
         """Handle token address input for buying."""
+        import logging
+        logger = logging.getLogger(__name__)
+
         text = message.text.strip()
         data = await state.get_data()
         chain = data.get("chain", "solana")
-        
+
+        logger.info(f"User {message.from_user.id} entered token address: {text}")
+
         # Detect chain from address format
-        solana_pattern = r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'
-        evm_pattern = r'^0x[a-fA-F0-9]{40}$'
-        
+        solana_pattern = r"^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+        evm_pattern = r"^0x[a-fA-F0-9]{40}$"
+
         is_solana = bool(re.match(solana_pattern, text))
         is_evm = bool(re.match(evm_pattern, text))
-        
+
         if is_solana:
             detected_chain = "solana"
         elif is_evm:
@@ -280,7 +285,7 @@ def register_menu_callbacks(dp):
                 reply_markup=get_back_main_keyboard()
             )
             return
-        
+
         await message.answer(
             f"🔍 <b>Fetching Token Info</b>\n\n"
             f"Chain: {detected_chain.capitalize()}\n"
@@ -288,15 +293,27 @@ def register_menu_callbacks(dp):
             "Please wait...",
             parse_mode="HTML"
         )
-        
-        token_info = await token_service.get_token_info_auto(text)
-        
+
+        try:
+            token_info = await token_service.get_token_info_auto(text)
+            logger.info(f"Token info result for {text}: {token_info is not None}")
+        except Exception as e:
+            logger.error(f"Error fetching token info for {text}: {e}", exc_info=True)
+            await message.answer(
+                f"❌ Error fetching token info: {type(e).__name__}"
+                "Please try again later.",
+                parse_mode="HTML",
+                reply_markup=get_back_main_keyboard()
+            )
+            await state.clear()
+            return
+
         if token_info:
-            price = token_info.get('price_usd', 'N/A')
-            change = token_info.get('price_change_24h', 'N/A')
-            name = token_info.get('name', 'Unknown')
-            symbol = token_info.get('symbol', 'UNK')
-            
+            price = token_info.get("price_usd", "N/A")
+            change = token_info.get("price_change_24h", "N/A")
+            name = token_info.get("name", "Unknown")
+            symbol = token_info.get("symbol", "UNK")
+
             await message.answer(
                 f"💎 <b>{name} ({symbol})</b>\n\n"
                 f"📍 Address: <code>{text}</code>\n"
@@ -310,11 +327,12 @@ def register_menu_callbacks(dp):
         else:
             await message.answer(
                 "❌ Could not fetch token information.\n"
+                "This token may not have trading pairs on DexScreener yet.\n"
                 "Please verify the address is correct.",
                 parse_mode="HTML",
                 reply_markup=get_back_main_keyboard()
             )
-        
+
         await state.clear()
 
 
@@ -415,8 +433,21 @@ def register_menu_callbacks(dp):
             parse_mode="HTML"
         )
         
-        token_info = await token_service.get_token_info_auto(text)
-        
+        try:
+            token_info = await token_service.get_token_info_auto(text)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error fetching token info for {text}: {e}", exc_info=True)
+            await message.answer(
+                f"Error fetching token info: {type(e).__name__}"
+                "Please try again later.",
+                parse_mode="HTML",
+                reply_markup=get_back_main_keyboard()
+            )
+            await state.clear()
+            return
+
         if token_info:
             price = token_info.get('price_usd', 'N/A')
             change = token_info.get('price_change_24h', 'N/A')
